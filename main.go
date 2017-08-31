@@ -24,7 +24,10 @@ func main() {
 	r.GET("/works", func(c *gin.Context) {
 		var works []Work
 		if err := db.Select(&works); err != nil {
-			c.JSON(404, []interface{}{})
+			c.JSON(404, gin.H{
+				"error":   true,
+				"message": "not found.",
+			})
 			return
 		}
 
