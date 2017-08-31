@@ -18,11 +18,14 @@ func main() {
 			"message": "Hello, World",
 		})
 	})
-	db, err := genmai.New(&genmai.PostgresDialect{}, "postgres://postgres:@localhost/test")
+	db, err := genmai.New(&genmai.PostgresDialect{}, "postgres://postgres:@localhost/test?sslmode=disable")
 	if err != nil {
 		panic(err)
 	}
 	defer db.Close()
+	if err := db.CreateTableIfNotExists(&Work{}); err != nil {
+		panic(err)
+	}
 
 	r.Run(":8080")
 }
