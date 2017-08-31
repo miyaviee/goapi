@@ -24,6 +24,14 @@ func main() {
 	r.GET("/works", func(c *gin.Context) {
 		var works []Work
 		if err := db.Select(&works); err != nil {
+			c.JSON(500, gin.H{
+				"error":   true,
+				"message": "system error.",
+			})
+			return
+		}
+
+		if len(works) == 0 {
 			c.JSON(404, gin.H{
 				"error":   true,
 				"message": "not found.",
@@ -37,6 +45,14 @@ func main() {
 	r.GET("/works/:id", func(c *gin.Context) {
 		var works []Work
 		if err := db.Select(&works, db.Where("id", "=", c.Param("id"))); err != nil {
+			c.JSON(500, gin.H{
+				"error":   true,
+				"message": "system error.",
+			})
+			return
+		}
+
+		if len(works) == 0 {
 			c.JSON(404, gin.H{
 				"error":   true,
 				"message": "not found.",
