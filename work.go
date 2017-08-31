@@ -20,3 +20,8 @@ type Work struct {
 func (w *Work) TableName() string {
 	return "works"
 }
+
+// Validate work validate
+func (w *Work) Validate() error {
+	return nil
+}

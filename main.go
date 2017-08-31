@@ -66,6 +66,13 @@ func main() {
 	r.POST("/works", func(c *gin.Context) {
 		var work Work
 		c.BindJSON(&work)
+		if err := work.Validate(); err != nil {
+			c.JSON(400, gin.H{
+				"error":   true,
+				"message": "bad request.",
+			})
+		}
+
 		if _, err := db.Insert(&work); err != nil {
 			c.JSON(500, gin.H{
 				"error":   true,
@@ -97,6 +104,13 @@ func main() {
 
 		work := works[0]
 		c.BindJSON(&work)
+		if err := work.Validate(); err != nil {
+			c.JSON(400, gin.H{
+				"error":   true,
+				"message": "bad request.",
+			})
+		}
+
 		if _, err := db.Update(&work); err != nil {
 			c.Error(err)
 			return
