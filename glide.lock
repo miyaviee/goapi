@@ -1,5 +1,5 @@
 hash: 55a6a9cb2f663a15d9ad853d8aaad28fab4e6ef66c8dc6b88b0be37ee1f0ba72
-updated: 2017-08-31T20:25:34.695693815+09:00
+updated: 2017-08-31T20:46:05.22704199+09:00
 imports:
 - name: github.com/gin-contrib/sse
   version: 22d885f9ecc78bf4ee5d72b937e4bbcdc58e8cae
@@ -18,6 +18,8 @@ imports:
   version: fc9e8d8ef48496124e79ae0df75490096eccf6fe
 - name: github.com/naoina/genmai
   version: c00e6703a1503c09dca12048bf17961b13511c0f
+- name: github.com/naoina/go-stringutil
+  version: 6b638e95a32d0c1131db0e7fe83775cbea4a0d0b
 - name: github.com/ugorji/go
   version: 8c0409fcbb70099c748d71f714529204975f6c3f
   subpackages:
