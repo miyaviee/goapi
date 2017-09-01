@@ -32,6 +32,18 @@ func (w *Work) Validate() error {
 		return err
 	}
 
+	if err := w.validateStartTime(); err != nil {
+		return err
+	}
+
+	if err := w.validateEndTime(); err != nil {
+		return err
+	}
+
+	if err := w.validateBreakTime(); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -49,4 +61,28 @@ func (w *Work) validateDay() error {
 	}
 
 	return errors.New("invalid day.")
+}
+
+func (w *Work) validateStartTime() error {
+	if w.StartTime <= 24 {
+		return nil
+	}
+
+	return errors.New("invalid start time.")
+}
+
+func (w *Work) validateEndTime() error {
+	if w.EndTime <= 24 {
+		return nil
+	}
+
+	return errors.New("invalid end time.")
+}
+
+func (w *Work) validateBreakTime() error {
+	if w.BreakTime <= 24 {
+		return nil
+	}
+
+	return errors.New("invalid break time.")
 }
