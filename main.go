@@ -9,6 +9,27 @@ import (
 
 var db *genmai.DB
 
+func systemError(c *gin.Context) {
+	c.JSON(500, gin.H{
+		"error":   true,
+		"message": "system error.",
+	})
+}
+
+func notFound(c *gin.Context) {
+	c.JSON(404, gin.H{
+		"error":   true,
+		"message": "not found.",
+	})
+}
+
+func badRequest(c *gin.Context) {
+	c.JSON(400, gin.H{
+		"error":   true,
+		"message": "bad request.",
+	})
+}
+
 func main() {
 	db, err := genmai.New(&genmai.PostgresDialect{}, "postgres://postgres:@localhost/test?sslmode=disable")
 	if err != nil {
@@ -24,18 +45,12 @@ func main() {
 	r.GET("/works", func(c *gin.Context) {
 		var works []Work
 		if err := db.Select(&works); err != nil {
-			c.JSON(500, gin.H{
-				"error":   true,
-				"message": "system error.",
-			})
+			systemError(c)
 			return
 		}
 
 		if len(works) == 0 {
-			c.JSON(404, gin.H{
-				"error":   true,
-				"message": "not found.",
-			})
+			notFound(c)
 			return
 		}
 
@@ -45,18 +60,12 @@ func main() {
 	r.GET("/works/:id", func(c *gin.Context) {
 		var works []Work
 		if err := db.Select(&works, db.Where("id", "=", c.Param("id"))); err != nil {
-			c.JSON(500, gin.H{
-				"error":   true,
-				"message": "system error.",
-			})
+			systemError(c)
 			return
 		}
 
 		if len(works) == 0 {
-			c.JSON(404, gin.H{
-				"error":   true,
-				"message": "not found.",
-			})
+			notFound(c)
 			return
 		}
 
@@ -67,17 +76,12 @@ func main() {
 		var work Work
 		c.BindJSON(&work)
 		if err := work.Validate(); err != nil {
-			c.JSON(400, gin.H{
-				"error":   true,
-				"message": "bad request.",
-			})
+			badRequest(c)
+			return
 		}
 
 		if _, err := db.Insert(&work); err != nil {
-			c.JSON(500, gin.H{
-				"error":   true,
-				"message": "create failed.",
-			})
+			systemError(c)
 			return
 		}
 
@@ -87,32 +91,24 @@ func main() {
 	r.PUT("/works/:id", func(c *gin.Context) {
 		var works []Work
 		if err := db.Select(&works, db.Where("id", "=", c.Param("id"))); err != nil {
-			c.JSON(500, gin.H{
-				"error":   true,
-				"message": "system error.",
-			})
+			systemError(c)
 			return
 		}
 
 		if len(works) == 0 {
-			c.JSON(404, gin.H{
-				"error":   true,
-				"message": "not found.",
-			})
+			notFound(c)
 			return
 		}
 
 		work := works[0]
 		c.BindJSON(&work)
 		if err := work.Validate(); err != nil {
-			c.JSON(400, gin.H{
-				"error":   true,
-				"message": "bad request.",
-			})
+			badRequest(c)
+			return
 		}
 
 		if _, err := db.Update(&work); err != nil {
-			c.Error(err)
+			systemError(c)
 			return
 		}
 
@@ -122,27 +118,18 @@ func main() {
 	r.DELETE("/works/:id", func(c *gin.Context) {
 		var works []Work
 		if err := db.Select(&works, db.Where("id", "=", c.Param("id"))); err != nil {
-			c.JSON(500, gin.H{
-				"error":   true,
-				"message": "system error.",
-			})
+			systemError(c)
 			return
 		}
 
 		if len(works) == 0 {
-			c.JSON(404, gin.H{
-				"error":   true,
-				"message": "not found.",
-			})
+			notFound(c)
 			return
 		}
 
 		work := works[0]
 		if _, err := db.Delete(&work); err != nil {
-			c.JSON(500, gin.H{
-				"error":   true,
-				"message": "delete failed.",
-			})
+			systemError(c)
 			return
 		}
 
