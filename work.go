@@ -2,7 +2,6 @@ package main
 
 import "github.com/naoina/genmai"
 
-// Work work record
 type Work struct {
 	ID         int64          `db:"pk" json:"id"`
 	EmployeeID int64          `json:"employee_id"`
