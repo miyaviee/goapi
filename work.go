@@ -1,6 +1,10 @@
 package main
 
-import "github.com/naoina/genmai"
+import (
+	"errors"
+
+	"github.com/naoina/genmai"
+)
 
 type Work struct {
 	ID         int64          `db:"pk" json:"id"`
@@ -15,12 +19,34 @@ type Work struct {
 	genmai.TimeStamp
 }
 
-// TableName work table name
 func (w *Work) TableName() string {
 	return "works"
 }
 
-// Validate work validate
 func (w *Work) Validate() error {
+	if err := w.validateMonth(); err != nil {
+		return err
+	}
+
+	if err := w.validateDay(); err != nil {
+		return err
+	}
+
 	return nil
+}
+
+func (w *Work) validateMonth() error {
+	if 1 <= w.Month && w.Month <= 12 {
+		return nil
+	}
+
+	return errors.New("invalid month.")
+}
+
+func (w *Work) validateDay() error {
+	if 1 <= w.Day && w.Day <= 31 {
+		return nil
+	}
+
+	return errors.New("invalid day.")
 }

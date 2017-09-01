@@ -1,6 +1,8 @@
 package main
 
 import (
+	"errors"
+
 	"github.com/gin-gonic/gin"
 	"github.com/naoina/genmai"
 
@@ -16,25 +18,12 @@ func initDB() *genmai.DB {
 	return db
 }
 
-func systemError(c *gin.Context) {
-	c.JSON(500, gin.H{
-		"error":   true,
-		"message": "system error.",
-	})
-}
+func errorHandler(c *gin.Context) {
+	c.Next()
 
-func notFound(c *gin.Context) {
-	c.JSON(404, gin.H{
-		"error":   true,
-		"message": "not found.",
-	})
-}
-
-func badRequest(c *gin.Context) {
-	c.JSON(400, gin.H{
-		"error":   true,
-		"message": "bad request.",
-	})
+	if len(c.Errors) != 0 {
+		c.JSON(-1, c.Errors)
+	}
 }
 
 func main() {
@@ -45,6 +34,7 @@ func main() {
 	defer db.Close()
 
 	r := gin.Default()
+	r.Use(errorHandler)
 
 	r.GET("/works", workIndex)
 	r.GET("/works/:id", workGET)
@@ -59,12 +49,12 @@ func workIndex(c *gin.Context) {
 	db := initDB()
 	var works []Work
 	if err := db.Select(&works); err != nil {
-		systemError(c)
+		c.AbortWithError(500, err)
 		return
 	}
 
 	if len(works) == 0 {
-		notFound(c)
+		c.AbortWithError(404, errors.New("not found."))
 		return
 	}
 
@@ -75,12 +65,12 @@ func workGET(c *gin.Context) {
 	db := initDB()
 	var works []Work
 	if err := db.Select(&works, db.Where("id", "=", c.Param("id"))); err != nil {
-		systemError(c)
+		c.AbortWithError(500, err)
 		return
 	}
 
 	if len(works) == 0 {
-		notFound(c)
+		c.AbortWithError(404, errors.New("not found."))
 		return
 	}
 
@@ -92,12 +82,12 @@ func workPOST(c *gin.Context) {
 	var work Work
 	c.BindJSON(&work)
 	if err := work.Validate(); err != nil {
-		badRequest(c)
+		c.AbortWithError(400, err)
 		return
 	}
 
 	if _, err := db.Insert(&work); err != nil {
-		systemError(c)
+		c.AbortWithError(500, err)
 		return
 	}
 
@@ -108,24 +98,24 @@ func workPUT(c *gin.Context) {
 	db := initDB()
 	var works []Work
 	if err := db.Select(&works, db.Where("id", "=", c.Param("id"))); err != nil {
-		systemError(c)
+		c.AbortWithError(500, err)
 		return
 	}
 
 	if len(works) == 0 {
-		notFound(c)
+		c.AbortWithError(404, errors.New("not found."))
 		return
 	}
 
 	work := works[0]
 	c.BindJSON(&work)
 	if err := work.Validate(); err != nil {
-		badRequest(c)
+		c.AbortWithError(400, err)
 		return
 	}
 
 	if _, err := db.Update(&work); err != nil {
-		systemError(c)
+		c.AbortWithError(500, err)
 		return
 	}
 
@@ -136,18 +126,18 @@ func workDELETE(c *gin.Context) {
 	db := initDB()
 	var works []Work
 	if err := db.Select(&works, db.Where("id", "=", c.Param("id"))); err != nil {
-		systemError(c)
+		c.AbortWithError(500, err)
 		return
 	}
 
 	if len(works) == 0 {
-		notFound(c)
+		c.AbortWithError(404, errors.New("not found."))
 		return
 	}
 
 	work := works[0]
 	if _, err := db.Delete(&work); err != nil {
-		systemError(c)
+		c.AbortWithError(500, err)
 		return
 	}
 
