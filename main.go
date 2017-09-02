@@ -49,13 +49,8 @@ func main() {
 
 func workIndex(c *gin.Context) {
 	var works []Work
-	if err := db.Select(&works); err != nil {
-		c.AbortWithError(500, err)
-		return
-	}
-
-	if len(works) == 0 {
-		c.AbortWithError(404, errors.New("not found."))
+	if err := findWorks(&works); err != nil {
+		c.AbortWithError(404, err)
 		return
 	}
 
@@ -63,18 +58,13 @@ func workIndex(c *gin.Context) {
 }
 
 func workGET(c *gin.Context) {
-	var works []Work
-	if err := db.Select(&works, db.Where("id", "=", c.Param("id"))); err != nil {
-		c.AbortWithError(500, err)
+	var work Work
+	if err := findWork(&work, c.Param("id")); err != nil {
+		c.AbortWithError(404, err)
 		return
 	}
 
-	if len(works) == 0 {
-		c.AbortWithError(404, errors.New("not found."))
-		return
-	}
-
-	c.JSON(200, works[0])
+	c.JSON(200, work)
 }
 
 func workPOST(c *gin.Context) {
@@ -94,18 +84,12 @@ func workPOST(c *gin.Context) {
 }
 
 func workPUT(c *gin.Context) {
-	var works []Work
-	if err := db.Select(&works, db.Where("id", "=", c.Param("id"))); err != nil {
-		c.AbortWithError(500, err)
+	var work Work
+	if err := findWork(&work, c.Param("id")); err != nil {
+		c.AbortWithError(404, err)
 		return
 	}
 
-	if len(works) == 0 {
-		c.AbortWithError(404, errors.New("not found."))
-		return
-	}
-
-	work := works[0]
 	c.BindJSON(&work)
 	if err := work.Validate(); err != nil {
 		c.AbortWithError(400, err)
@@ -121,18 +105,12 @@ func workPUT(c *gin.Context) {
 }
 
 func workDELETE(c *gin.Context) {
-	var works []Work
-	if err := db.Select(&works, db.Where("id", "=", c.Param("id"))); err != nil {
-		c.AbortWithError(500, err)
+	var work Work
+	if err := findWork(&work, c.Param("id")); err != nil {
+		c.AbortWithError(404, err)
 		return
 	}
 
-	if len(works) == 0 {
-		c.AbortWithError(404, errors.New("not found."))
-		return
-	}
-
-	work := works[0]
 	if _, err := db.Delete(&work); err != nil {
 		c.AbortWithError(500, err)
 		return
@@ -141,4 +119,31 @@ func workDELETE(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"success": true,
 	})
+}
+
+func findWorks(works *[]Work) error {
+	if err := db.Select(works); err != nil {
+		return errors.New("system error.")
+	}
+
+	if len(*works) == 0 {
+		return errors.New("not found.")
+	}
+
+	return nil
+}
+
+func findWork(w *Work, id interface{}) error {
+	var works []Work
+	if err := db.Select(&works, db.Where("id", "=", id)); err != nil {
+		return errors.New("system error.")
+	}
+
+	if len(works) == 0 {
+		return errors.New("not found.")
+	}
+
+	*w = works[0]
+
+	return nil
 }
