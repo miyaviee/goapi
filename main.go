@@ -25,13 +25,13 @@ type Error struct {
 	Error error
 }
 
-func APIError(code int, msg string) *Error {
+func NewError(code int, msg string) *Error {
 	return &Error{Code: code, Error: errors.New(msg)}
 }
 
 var (
-	systemError = APIError(500, "system error.")
-	notFound    = APIError(404, "not found.")
+	systemError = NewError(500, "system error.")
+	notFound    = NewError(404, "not found.")
 )
 
 func errorHandler(c *gin.Context) {
@@ -85,7 +85,7 @@ func workPOST(c *gin.Context) {
 	var work Work
 	c.BindJSON(&work)
 	if err := work.Validate(); err != nil {
-		c.AbortWithError(400, err)
+		c.AbortWithError(err.Code, err.Error)
 		return
 	}
 
@@ -106,7 +106,7 @@ func workPUT(c *gin.Context) {
 
 	c.BindJSON(&work)
 	if err := work.Validate(); err != nil {
-		c.AbortWithError(400, err)
+		c.AbortWithError(err.Code, err.Error)
 		return
 	}
 

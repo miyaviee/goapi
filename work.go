@@ -1,8 +1,6 @@
 package main
 
 import (
-	"errors"
-
 	"github.com/naoina/genmai"
 )
 
@@ -23,7 +21,11 @@ func (w *Work) TableName() string {
 	return "works"
 }
 
-func (w *Work) Validate() error {
+func (w *Work) Validate() *Error {
+	if err := w.validateYear(); err != nil {
+		return err
+	}
+
 	if err := w.validateMonth(); err != nil {
 		return err
 	}
@@ -47,42 +49,50 @@ func (w *Work) Validate() error {
 	return nil
 }
 
-func (w *Work) validateMonth() error {
+func (w *Work) validateYear() *Error {
+	if 2000 <= w.Year && w.Year <= 2100 {
+		return nil
+	}
+
+	return NewError(400, "invalid year.")
+}
+
+func (w *Work) validateMonth() *Error {
 	if 1 <= w.Month && w.Month <= 12 {
 		return nil
 	}
 
-	return errors.New("invalid month.")
+	return NewError(400, "invalid month.")
 }
 
-func (w *Work) validateDay() error {
+func (w *Work) validateDay() *Error {
 	if 1 <= w.Day && w.Day <= 31 {
 		return nil
 	}
 
-	return errors.New("invalid day.")
+	return NewError(400, "invalid day.")
 }
 
-func (w *Work) validateStartTime() error {
+func (w *Work) validateStartTime() *Error {
 	if w.StartTime <= 24 {
 		return nil
 	}
 
-	return errors.New("invalid start time.")
+	return NewError(400, "invalid start_time.")
 }
 
-func (w *Work) validateEndTime() error {
+func (w *Work) validateEndTime() *Error {
 	if w.EndTime <= 24 {
 		return nil
 	}
 
-	return errors.New("invalid end time.")
+	return NewError(400, "invalid end_time.")
 }
 
-func (w *Work) validateBreakTime() error {
+func (w *Work) validateBreakTime() *Error {
 	if w.BreakTime <= 24 {
 		return nil
 	}
 
-	return errors.New("invalid break time.")
+	return NewError(400, "invalid break_time.")
 }

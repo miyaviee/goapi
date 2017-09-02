@@ -4,7 +4,7 @@ import "testing"
 
 func getWork() Work {
 	return Work{
-		Year:      2017,
+		Year:      2000,
 		Month:     1,
 		Day:       1,
 		StartTime: 24,
@@ -17,6 +17,28 @@ func TestTableName(t *testing.T) {
 	w := getWork()
 	if w.TableName() != "works" {
 		t.Fatalf("table name test failed")
+	}
+}
+
+func TestValidateYear(t *testing.T) {
+	w := getWork()
+	if err := w.Validate(); err != nil {
+		t.Fatalf("validate year test failed")
+	}
+
+	w.Year = 2100
+	if err := w.Validate(); err != nil {
+		t.Fatalf("validate year test failed")
+	}
+
+	w.Year = 1999
+	if err := w.Validate(); err == nil {
+		t.Fatalf("validate year test failed")
+	}
+
+	w.Year = 2101
+	if err := w.Validate(); err == nil {
+		t.Fatalf("validate year test failed")
 	}
 }
 
