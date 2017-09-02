@@ -89,8 +89,8 @@ func workPOST(c *gin.Context) {
 		return
 	}
 
-	if _, err := db.Insert(&work); err != nil {
-		c.AbortWithError(500, err)
+	if err := saveWork(&work); err != nil {
+		c.AbortWithError(err.Code, err.Error)
 		return
 	}
 
@@ -110,8 +110,8 @@ func workPUT(c *gin.Context) {
 		return
 	}
 
-	if _, err := db.Update(&work); err != nil {
-		c.AbortWithError(500, err)
+	if err := saveWork(&work); err != nil {
+		c.AbortWithError(err.Code, err.Error)
 		return
 	}
 
@@ -125,8 +125,8 @@ func workDELETE(c *gin.Context) {
 		return
 	}
 
-	if _, err := db.Delete(&work); err != nil {
-		c.AbortWithError(500, err)
+	if err := deleteWork(&work); err != nil {
+		c.AbortWithError(err.Code, err.Error)
 		return
 	}
 
@@ -158,6 +158,30 @@ func findWork(w *Work, id interface{}) *Error {
 	}
 
 	*w = works[0]
+
+	return nil
+}
+
+func saveWork(w *Work) *Error {
+	if w.ID != 0 {
+		if _, err := db.Update(w); err != nil {
+			return systemError
+		}
+
+		return nil
+	}
+
+	if _, err := db.Insert(w); err != nil {
+		return systemError
+	}
+
+	return nil
+}
+
+func deleteWork(w *Work) *Error {
+	if _, err := db.Delete(w); err != nil {
+		return systemError
+	}
 
 	return nil
 }
