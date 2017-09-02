@@ -22,6 +22,10 @@ func (w *Work) TableName() string {
 }
 
 func (w *Work) Validate() *Error {
+	if err := w.validateEmployeeID(); err != nil {
+		return err
+	}
+
 	if err := w.validateYear(); err != nil {
 		return err
 	}
@@ -47,6 +51,14 @@ func (w *Work) Validate() *Error {
 	}
 
 	return nil
+}
+
+func (w *Work) validateEmployeeID() *Error {
+	if w.EmployeeID != 0 {
+		return nil
+	}
+
+	return NewError(400, "invalid employee_id.")
 }
 
 func (w *Work) validateYear() *Error {

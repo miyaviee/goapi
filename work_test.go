@@ -4,12 +4,13 @@ import "testing"
 
 func getWork() Work {
 	return Work{
-		Year:      2000,
-		Month:     1,
-		Day:       1,
-		StartTime: 24,
-		EndTime:   24,
-		BreakTime: 24,
+		EmployeeID: 1,
+		Year:       2000,
+		Month:      1,
+		Day:        1,
+		StartTime:  24,
+		EndTime:    24,
+		BreakTime:  24,
 	}
 }
 
@@ -17,6 +18,18 @@ func TestTableName(t *testing.T) {
 	w := getWork()
 	if w.TableName() != "works" {
 		t.Fatalf("table name test failed")
+	}
+}
+
+func TestValdateEmployeeID(t *testing.T) {
+	w := getWork()
+	if err := w.Validate(); err != nil {
+		t.Fatalf("validate employee_id test failed.")
+	}
+
+	w.EmployeeID = 0
+	if err := w.Validate(); err == nil {
+		t.Fatalf("validate employee_id test failed.")
 	}
 }
 
@@ -90,7 +103,7 @@ func TestValidateStartTime(t *testing.T) {
 	w := getWork()
 	w.StartTime = 24.01
 	if err := w.Validate(); err == nil {
-		t.Fatalf("validate start time test failed")
+		t.Fatalf("validate start_time test failed")
 	}
 }
 
@@ -98,7 +111,7 @@ func TestValidateEndTime(t *testing.T) {
 	w := getWork()
 	w.EndTime = 24.01
 	if err := w.Validate(); err == nil {
-		t.Fatalf("validate end time test failed")
+		t.Fatalf("validate end_time test failed")
 	}
 }
 
@@ -106,6 +119,6 @@ func TestValidateBreakTime(t *testing.T) {
 	w := getWork()
 	w.BreakTime = 24.01
 	if err := w.Validate(); err == nil {
-		t.Fatalf("validate break time test failed")
+		t.Fatalf("validate break_time test failed")
 	}
 }
