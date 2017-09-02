@@ -20,6 +20,20 @@ func initDB() *genmai.DB {
 	return db
 }
 
+type Error struct {
+	Code  int
+	Error error
+}
+
+func APIError(code int, msg string) *Error {
+	return &Error{Code: code, Error: errors.New(msg)}
+}
+
+var (
+	systemError = APIError(500, "system error.")
+	notFound    = APIError(404, "not found.")
+)
+
 func errorHandler(c *gin.Context) {
 	c.Next()
 
@@ -50,7 +64,7 @@ func main() {
 func workIndex(c *gin.Context) {
 	var works []Work
 	if err := findWorks(&works); err != nil {
-		c.AbortWithError(404, err)
+		c.AbortWithError(err.Code, err.Error)
 		return
 	}
 
@@ -60,7 +74,7 @@ func workIndex(c *gin.Context) {
 func workGET(c *gin.Context) {
 	var work Work
 	if err := findWork(&work, c.Param("id")); err != nil {
-		c.AbortWithError(404, err)
+		c.AbortWithError(err.Code, err.Error)
 		return
 	}
 
@@ -86,7 +100,7 @@ func workPOST(c *gin.Context) {
 func workPUT(c *gin.Context) {
 	var work Work
 	if err := findWork(&work, c.Param("id")); err != nil {
-		c.AbortWithError(404, err)
+		c.AbortWithError(err.Code, err.Error)
 		return
 	}
 
@@ -107,7 +121,7 @@ func workPUT(c *gin.Context) {
 func workDELETE(c *gin.Context) {
 	var work Work
 	if err := findWork(&work, c.Param("id")); err != nil {
-		c.AbortWithError(404, err)
+		c.AbortWithError(err.Code, err.Error)
 		return
 	}
 
@@ -121,26 +135,26 @@ func workDELETE(c *gin.Context) {
 	})
 }
 
-func findWorks(works *[]Work) error {
+func findWorks(works *[]Work) *Error {
 	if err := db.Select(works); err != nil {
-		return errors.New("system error.")
+		return systemError
 	}
 
 	if len(*works) == 0 {
-		return errors.New("not found.")
+		return notFound
 	}
 
 	return nil
 }
 
-func findWork(w *Work, id interface{}) error {
+func findWork(w *Work, id interface{}) *Error {
 	var works []Work
 	if err := db.Select(&works, db.Where("id", "=", id)); err != nil {
-		return errors.New("system error.")
+		return systemError
 	}
 
 	if len(works) == 0 {
-		return errors.New("not found.")
+		return notFound
 	}
 
 	*w = works[0]
