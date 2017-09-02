@@ -9,6 +9,8 @@ import (
 	_ "github.com/lib/pq"
 )
 
+var db *genmai.DB
+
 func initDB() *genmai.DB {
 	db, err := genmai.New(&genmai.PostgresDialect{}, "postgres://postgres:@localhost/test?sslmode=disable")
 	if err != nil {
@@ -27,7 +29,7 @@ func errorHandler(c *gin.Context) {
 }
 
 func main() {
-	db := initDB()
+	db = initDB()
 	if err := db.CreateTableIfNotExists(&Work{}); err != nil {
 		panic(err)
 	}
@@ -46,7 +48,6 @@ func main() {
 }
 
 func workIndex(c *gin.Context) {
-	db := initDB()
 	var works []Work
 	if err := db.Select(&works); err != nil {
 		c.AbortWithError(500, err)
@@ -62,7 +63,6 @@ func workIndex(c *gin.Context) {
 }
 
 func workGET(c *gin.Context) {
-	db := initDB()
 	var works []Work
 	if err := db.Select(&works, db.Where("id", "=", c.Param("id"))); err != nil {
 		c.AbortWithError(500, err)
@@ -78,7 +78,6 @@ func workGET(c *gin.Context) {
 }
 
 func workPOST(c *gin.Context) {
-	db := initDB()
 	var work Work
 	c.BindJSON(&work)
 	if err := work.Validate(); err != nil {
@@ -95,7 +94,6 @@ func workPOST(c *gin.Context) {
 }
 
 func workPUT(c *gin.Context) {
-	db := initDB()
 	var works []Work
 	if err := db.Select(&works, db.Where("id", "=", c.Param("id"))); err != nil {
 		c.AbortWithError(500, err)
@@ -123,7 +121,6 @@ func workPUT(c *gin.Context) {
 }
 
 func workDELETE(c *gin.Context) {
-	db := initDB()
 	var works []Work
 	if err := db.Select(&works, db.Where("id", "=", c.Param("id"))); err != nil {
 		c.AbortWithError(500, err)
