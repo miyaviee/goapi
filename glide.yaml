@@ -1,6 +1,0 @@
-package: github.com/miyaviee/goapi
-import:
-- package: github.com/gin-gonic/gin
-  version: ^1.2.0
-- package: github.com/naoina/genmai
-- package: github.com/lib/pq
